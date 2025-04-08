@@ -1,6 +1,9 @@
-import { UseServiceCallStatusProps } from "./useServiceCall";
-
+export type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
 export type MethodProps = 'get' | 'post' | 'put' | 'delete';
+
+export interface UseServiceCallProps {
+    fn: any,
+}
 
 export type ApiConfig = {
     [key: string]: {

@@ -84,7 +84,7 @@ export {
 ### 2. Server-Side Usage (`getServerSideProps`)
 
 ```ts
-import { serverQueriesObject } from "@/api";
+import { serverQueriesObject } from "@/api-query-objects";
 
 export const getServerSideProps = async () => {
     const response = await serverQueriesObject.breed_hound_images();
@@ -99,7 +99,7 @@ export const getServerSideProps = async () => {
 ### 3. Client-Side Usage (React Component)
 
 ```tsx
-import { clientQueriesObject } from "@/services/api";
+import { clientQueriesObject } from "@/services/api-query-objects";
 
 interface PageProps {
     listByBreed: string[];

@@ -1,14 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { UseServiceCallProps, UseServiceCallStatusProps } from "../types";
+import { useState } from "react";
 
-interface UseServiceCallInterface {
-    fn: any,
-}
-
-export type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
-
-const useServiceCall = ({ fn }: UseServiceCallInterface) => {
+const useServiceCall = ({ fn }: UseServiceCallProps) => {
     const [status, setStatus] = useState<UseServiceCallStatusProps>('idle');
     const [args, setArgs] = useState(null);
     const [error, setError] = useState(null);
