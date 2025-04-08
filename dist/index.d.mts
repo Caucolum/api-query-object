@@ -1,9 +1,4 @@
-import * as react_jsx_runtime from 'react/jsx-runtime';
-
-declare const Test: () => react_jsx_runtime.JSX.Element;
-
 type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
-
 type MethodProps = 'get' | 'post' | 'put' | 'delete';
 type ApiConfig = {
     [key: string]: {
@@ -37,4 +32,4 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
 declare function createServerNextArchitecture<T extends ApiConfig>(list: T): ServerApiMethods<T>;
 declare function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): ClientApiMethods<K>;
 
-export { type ApiEndpoint, Test, createClientNextArchitecture, createServerNextArchitecture };
+export { type ApiEndpoint, createClientNextArchitecture, createServerNextArchitecture };

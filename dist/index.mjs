@@ -1,15 +1,3 @@
-// src/components/test.tsx
-import { useState } from "react";
-import { jsxs } from "react/jsx-runtime";
-var Test = () => {
-  const [counter, setCounter] = useState(0);
-  return /* @__PURE__ */ jsxs("div", { style: { backgroundColor: "red", cursor: "pointer" }, onClick: () => setCounter((prev) => prev + 1), children: [
-    "este \xE9 um componente test ",
-    counter
-  ] });
-};
-var test_default = Test;
-
 // src/axios/index.ts
 import axios from "axios";
 var createConfiguredAxiosInstance = (options) => {
@@ -58,12 +46,12 @@ var http = new Http();
 var http_default = http;
 
 // src/useServiceCall/index.tsx
-import { useState as useState2 } from "react";
+import { useState } from "react";
 var useServiceCall = ({ fn }) => {
-  const [status, setStatus] = useState2("idle");
-  const [args, setArgs] = useState2(null);
-  const [error, setError] = useState2(null);
-  const [data, setData] = useState2(null);
+  const [status, setStatus] = useState("idle");
+  const [args, setArgs] = useState(null);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
   const makeRequest = async (...args2) => {
     setStatus("loading");
     setArgs(args2);
@@ -121,7 +109,6 @@ function createClientNextArchitecture(serverApi, list) {
   return client;
 }
 export {
-  test_default as Test,
   createClientNextArchitecture,
   createServerNextArchitecture
 };

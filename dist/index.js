@@ -30,23 +30,10 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  Test: () => test_default,
   createClientNextArchitecture: () => createClientNextArchitecture,
   createServerNextArchitecture: () => createServerNextArchitecture
 });
 module.exports = __toCommonJS(index_exports);
-
-// src/components/test.tsx
-var import_react = require("react");
-var import_jsx_runtime = require("react/jsx-runtime");
-var Test = () => {
-  const [counter, setCounter] = (0, import_react.useState)(0);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: "red", cursor: "pointer" }, onClick: () => setCounter((prev) => prev + 1), children: [
-    "este \xE9 um componente test ",
-    counter
-  ] });
-};
-var test_default = Test;
 
 // src/axios/index.ts
 var import_axios = __toESM(require("axios"));
@@ -96,12 +83,12 @@ var http = new Http();
 var http_default = http;
 
 // src/useServiceCall/index.tsx
-var import_react2 = require("react");
+var import_react = require("react");
 var useServiceCall = ({ fn }) => {
-  const [status, setStatus] = (0, import_react2.useState)("idle");
-  const [args, setArgs] = (0, import_react2.useState)(null);
-  const [error, setError] = (0, import_react2.useState)(null);
-  const [data, setData] = (0, import_react2.useState)(null);
+  const [status, setStatus] = (0, import_react.useState)("idle");
+  const [args, setArgs] = (0, import_react.useState)(null);
+  const [error, setError] = (0, import_react.useState)(null);
+  const [data, setData] = (0, import_react.useState)(null);
   const makeRequest = async (...args2) => {
     setStatus("loading");
     setArgs(args2);
@@ -160,7 +147,6 @@ function createClientNextArchitecture(serverApi, list) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Test,
   createClientNextArchitecture,
   createServerNextArchitecture
 });
