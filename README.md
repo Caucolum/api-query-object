@@ -32,9 +32,11 @@ const api = {
 } as const satisfies Record<string, ApiEndpoint>;
 
 const serverQueriesObject = createServerNextArchitecture(api);
+const clientQueriesObject = createClientNextArchitecture(serverQueriesObject, api);
 
 export {
-    serverQueriesObject
+    serverQueriesObject,
+    clientQueriesObject
 }
 ```
 Now just include your own API:
