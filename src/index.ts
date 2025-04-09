@@ -1,8 +1,8 @@
-import { ApiClientResourcesProps } from "./types";
 import { ApiConfig, ClientApiMethods, MethodProps, ServerApiMethods } from "./types";
+import { ApiClientResourcesProps } from "./types";
 
-import http from "./http";
 import useServiceCall from "./useServiceCall";
+import http from "./http";
 
 export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly url: string;
