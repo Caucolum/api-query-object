@@ -20,7 +20,11 @@ With Api-query-object, the user can list their endpoints, automatically generati
 
 ## Usage Example
 
-### 1. Define Endpoints
+### 1. Install library: 
+
+npm i @caucolum/api-query-object
+
+### 2. Define Endpoints
 
 The API object is automatically created when implementing the library:
 
@@ -83,7 +87,7 @@ export {
 }
 ```
 
-### 2. Server-Side Usage (`getServerSideProps`)
+### 3. Server-Side Usage (`getServerSideProps`)
 
 ```ts
 import { serverQueriesObject } from "@/api-query-objects";
@@ -98,7 +102,7 @@ export const getServerSideProps = async () => {
 };
 ```
 
-### 3. Client-Side Usage (React Component)
+### 4. Client-Side Usage (React Component)
 
 ```tsx
 import { clientQueriesObject } from "@/services/api-query-objects";
