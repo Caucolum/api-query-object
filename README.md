@@ -23,7 +23,7 @@ With Api-query-object, the user can list their endpoints, automatically generati
 ### 1. Install library: 
 
 ```ts
-    npm i @caucolum/api-query-object
+npm i @caucolum/api-query-object
 ```
 
 ### 2. Define Endpoints
