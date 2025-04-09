@@ -1,3 +1,27 @@
+// src/useServiceCall/index.tsx
+import { useState } from "react";
+var useServiceCall = ({ fn }) => {
+  const [status, setStatus] = useState("idle");
+  const [args, setArgs] = useState(null);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
+  const makeRequest = async (...args2) => {
+    setStatus("loading");
+    setArgs(args2);
+    try {
+      const response = await fn(...args2);
+      setData(response);
+      setStatus("loaded");
+      return response;
+    } catch (err) {
+      setStatus("error");
+      setError(err);
+    }
+  };
+  return { data, status, error, args, makeRequest };
+};
+var useServiceCall_default = useServiceCall;
+
 // src/axios/index.ts
 import axios from "axios";
 var createConfiguredAxiosInstance = (options) => {
@@ -44,30 +68,6 @@ var Http = class {
 };
 var http = new Http();
 var http_default = http;
-
-// src/useServiceCall/index.tsx
-import { useState } from "react";
-var useServiceCall = ({ fn }) => {
-  const [status, setStatus] = useState("idle");
-  const [args, setArgs] = useState(null);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
-  const makeRequest = async (...args2) => {
-    setStatus("loading");
-    setArgs(args2);
-    try {
-      const response = await fn(...args2);
-      setData(response);
-      setStatus("loaded");
-      return response;
-    } catch (err) {
-      setStatus("error");
-      setError(err);
-    }
-  };
-  return { data, status, error, args, makeRequest };
-};
-var useServiceCall_default = useServiceCall;
 
 // src/index.ts
 function createApiClass(list) {
