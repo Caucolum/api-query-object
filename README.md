@@ -31,7 +31,7 @@ npm i @caucolum/api-query-object
 The API object is automatically created when implementing the library:
 
 ```ts
-import { createServerNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
+import { createServerNextArchitecture, createClientNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
 
 const api = {
 
@@ -48,7 +48,7 @@ export {
 Now just include your own API:
 
 ```ts
-import { createServerNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
+import { createServerNextArchitecture, createClientNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
 
 interface BreedsImageRandomArgProps {
     breed?: string;
