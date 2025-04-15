@@ -30,19 +30,18 @@ function createApiClass<T extends ApiConfig>(list: T) {
     };
 }
 
-function createPrimitiveClient<T extends ServerApiMethods<any>>(serverApi: T): new () => { [K in keyof T]: () => any } {
-    class PrimitiveClient {
-        constructor() {
-            Object.keys(serverApi).forEach((key) => {
-                (this as any)[key] = () => {
-                    return useServiceCall({ fn: serverApi[key as keyof T] }) as ApiClientResourcesProps; 
-                };
-            });
-        }
+function createPrimitiveClient<T extends ServerApiMethods<any>>(serverApi: T) {
+    const client: Partial<Record<keyof T, () => ReturnType<typeof useServiceCall>>> = {};
+  
+    for (const key in serverApi) {
+      client[key] = () => {
+        return useServiceCall({ fn: serverApi[key] });
+      };
     }
-
-    return PrimitiveClient as new () => { [K in keyof T]: () => any };
-}
+  
+    return client as { [K in keyof T]: () => ReturnType<typeof useServiceCall> };
+  }
+  
 
 function createServerNextArchitecture<T extends ApiConfig>(list: T) {
     const PrimitiveServer = createApiClass(list);
@@ -52,8 +51,7 @@ function createServerNextArchitecture<T extends ApiConfig>(list: T) {
 }
 
 function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K) {
-    const PrimitiveClient = createPrimitiveClient(serverApi);
-    const client: ClientApiMethods<typeof list> = new PrimitiveClient();
+    const client: ClientApiMethods<typeof list> = createPrimitiveClient(serverApi);
     return client;
 }
 

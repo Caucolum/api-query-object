@@ -124,16 +124,13 @@ function createApiClass(list) {
   };
 }
 function createPrimitiveClient(serverApi) {
-  class PrimitiveClient {
-    constructor() {
-      Object.keys(serverApi).forEach((key) => {
-        this[key] = () => {
-          return useServiceCall_default({ fn: serverApi[key] });
-        };
-      });
-    }
+  const client = {};
+  for (const key in serverApi) {
+    client[key] = () => {
+      return useServiceCall_default({ fn: serverApi[key] });
+    };
   }
-  return PrimitiveClient;
+  return client;
 }
 function createServerNextArchitecture(list) {
   const PrimitiveServer = createApiClass(list);
@@ -141,8 +138,7 @@ function createServerNextArchitecture(list) {
   return server;
 }
 function createClientNextArchitecture(serverApi, list) {
-  const PrimitiveClient = createPrimitiveClient(serverApi);
-  const client = new PrimitiveClient();
+  const client = createPrimitiveClient(serverApi);
   return client;
 }
 // Annotate the CommonJS export names for ESM import in node:
