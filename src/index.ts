@@ -17,14 +17,14 @@ function createApiClass<T extends ApiConfig>(list: T) {
         constructor() {
             Object.keys(list).forEach((key) => {
                 (this as any)[key] = async (params?: any) => {
-                    return this.request(list[key].method, list[key].url, list[key].authenticated);
+                    return this.request(list[key].method, list[key].url, list[key].authenticated, params);
                 };
             });
         }
     
-        async request(method: MethodProps, url: string, authenticated?: boolean): Promise<any> {
+        async request(method: MethodProps, url: string, authenticated?: boolean, params?: any): Promise<any> {
             const client = authenticated ? http.privateClient() : http.publicClient();
-            const response = await client[method](url);
+            const response = await client[method](url, { params });
             return response.data;
         }
     };

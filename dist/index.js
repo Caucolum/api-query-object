@@ -112,13 +112,13 @@ function createApiClass(list) {
     constructor() {
       Object.keys(list).forEach((key) => {
         this[key] = async (params) => {
-          return this.request(list[key].method, list[key].url, list[key].authenticated);
+          return this.request(list[key].method, list[key].url, list[key].authenticated, params);
         };
       });
     }
-    async request(method, url, authenticated) {
+    async request(method, url, authenticated, params) {
       const client = authenticated ? http_default.privateClient() : http_default.publicClient();
-      const response = await client[method](url);
+      const response = await client[method](url, { params });
       return response.data;
     }
   };
