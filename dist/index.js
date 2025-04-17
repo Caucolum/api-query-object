@@ -44,7 +44,7 @@ var useServiceCall = ({ fn }) => {
   const [data, setData] = (0, import_react.useState)(null);
   const makeRequest = async (...args2) => {
     setStatus("loading");
-    setArgs(args2);
+    setArgs(args2[0]);
     try {
       const response = await fn(...args2);
       setData(response);

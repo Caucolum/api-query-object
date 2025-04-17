@@ -11,7 +11,7 @@ const useServiceCall = ({ fn }: UseServiceCallProps) => {
 
     const makeRequest = async (...args: any) => {
         setStatus('loading');
-        setArgs(args);
+        setArgs(args[0]);
         try {
             const response = await fn(...args);
             setData(response);
