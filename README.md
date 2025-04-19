@@ -26,16 +26,40 @@ With Api-query-object, the user can list their endpoints, automatically generati
 npm i @caucolum/api-query-object
 ```
 
-### 2. Define Endpoints
+### 2. Created files
 
-The API object is automatically created when implementing the library:
+The created folder api-query-objects contains files for managing API queries.
+
+`api.ts`: This file stores a list of available API endpoints used in the project.
+`factory.ts`: This file is responsible for creating and returning objects that represent specific API query configurations.
+
+```txt
+📁 meu-projeto
+├── 📁 src 
+    └── 📁 api-query-objects
+        └── 📄 api.ts
+        └── 📄 factory.ts
+```
+
+### 3. Define Endpoints
+
+In `api.ts`, user can implements him api endpoints: 
 
 ```ts
-import { createServerNextArchitecture, createClientNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
+import { ApiEndpoint } from "@caucolum/api-query-object";
 
 const api = {
 
 } as const satisfies Record<string, ApiEndpoint>;
+
+export default api;
+```
+
+The objects are automatically created when implementing the user api endpoints:
+
+```ts
+import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
+import api from "./api";
 
 const serverQueriesObject = createServerNextArchitecture(api);
 const clientQueriesObject = createClientNextArchitecture(serverQueriesObject, api);
@@ -45,7 +69,8 @@ export {
     clientQueriesObject
 }
 ```
-Now just include your own API:
+
+Now just include your own API in `api.ts`:
 
 ```ts
 import { createServerNextArchitecture, createClientNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
@@ -80,16 +105,10 @@ const api = {
     },
 } as const satisfies Record<string, ApiEndpoint>;
 
-const serverQueriesObject = createServerNextArchitecture(api);
-const clientQueriesObject = createClientNextArchitecture(serverQueriesObject, api);
-
-export {
-    serverQueriesObject,
-    clientQueriesObject
-}
+export default api;
 ```
 
-### 3. Server-Side Usage (`getServerSideProps`)
+### 4. Server-Side Usage (`getServerSideProps`)
 
 ```ts
 import { serverQueriesObject } from "@/api-query-objects";
@@ -104,7 +123,7 @@ export const getServerSideProps = async () => {
 };
 ```
 
-### 4. Client-Side Usage (React Component)
+### 5. Client-Side Usage (React Component)
 
 ```tsx
 import { clientQueriesObject } from "@/services/api-query-objects";
