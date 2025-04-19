@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm version patch && npm publish",
-    "postinstall": "node createFile.js",
+    "postinstall": "node createFactory.js && node createApi.js",
     "build": "tsup"
   },
   "keywords": [],
