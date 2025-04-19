@@ -6,8 +6,8 @@ Api-query-object is a JavaScript library that quickly and automatically creates 
 
 With Api-query-object, the user can list their endpoints, automatically generating:
 
-- **`server` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
-- **`client` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
+- **`serverQueriesObject` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
+- **`clientQueriesObject` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
   - `makeRequest`: A usable function to trigger the client request.
   - `data`: The response of the request.
   - `args`: Parameters of the last request.
