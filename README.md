@@ -73,7 +73,7 @@ export {
 Now just include your own API in `api.ts`:
 
 ```ts
-import { createServerNextArchitecture, createClientNextArchitecture, ApiEndpoint } from "@caucolum/api-query-object";
+import { ApiEndpoint } from "@caucolum/api-query-object";
 
 interface BreedsImageRandomArgProps {
     breed?: string;
