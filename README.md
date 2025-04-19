@@ -126,7 +126,7 @@ export const getServerSideProps = async () => {
 ### 5. Client-Side Usage (React Component)
 
 ```tsx
-import { clientQueriesObject } from "@/services/api-query-objects";
+import { clientQueriesObject } from "@/api-query-objects";
 
 interface PageProps {
     listByBreed: string[];
