@@ -121,6 +121,22 @@ export const getServerSideProps = async () => {
         },
     };
 };
+
+interface PageProps {
+    listByBreed: string[];
+}
+
+const Index = ({ listByBreed }: PageProps) => {
+    return <div>
+        <div className="h-50 overflow-y-scroll">
+            {listByBreed.map((breed, index) => (
+                <div key={index}>{breed}</div>
+            ))}
+        </div>
+    </div>
+};
+
+export default Index;
 ```
 
 ### 5. Client-Side Usage (React Component)
@@ -128,21 +144,12 @@ export const getServerSideProps = async () => {
 ```tsx
 import { clientQueriesObject } from "@/api-query-objects";
 
-interface PageProps {
-    listByBreed: string[];
-}
-
-const Index = ({ listByBreed }: PageProps) => {
+const Index = () => {
     const { makeRequest, data, isSuccess } = clientQueriesObject.breeds_image_random();
     return <div>
         <div>
             {isSuccess && <img src={data.message} alt="" />}
             <button onClick={() => makeRequest()}>New request</button>
-        </div>
-        <div className="h-50 overflow-y-scroll">
-            {listByBreed.map((breed, index) => (
-                <div key={index}>{breed}</div>
-            ))}
         </div>
     </div>
 };
