@@ -6,8 +6,8 @@ Api-query-object is a JavaScript library that quickly and automatically creates 
 
 With Api-query-object, the user can list their endpoints, automatically generating:
 
-- **`caucolumServerObject` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
-- **`caucolumClientObject` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
+- **`caucolumServer` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
+- **`caucolumClient` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
   - `makeRequest`: A usable function to trigger the client request.
   - `data`: The response of the request.
   - `args`: Parameters of the last request.
@@ -61,12 +61,12 @@ The objects are automatically created when implementing the user api endpoints:
 import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
 import api from "./api";
 
-const caucolumServerObject = createServerNextArchitecture(api);
-const caucolumClientObject = createClientNextArchitecture(caucolumServerObject, api);
+const caucolumServer = createServerNextArchitecture(api);
+const caucolumClient = createClientNextArchitecture(caucolumServer, api);
 
 export {
-    caucolumServerObject,
-    caucolumClientObject
+    caucolumServer,
+    caucolumClient
 }
 ```
 
@@ -111,10 +111,10 @@ export default api;
 ### 4. Server-Side Usage (`getServerSideProps`)
 
 ```ts
-import { caucolumServerObject } from "@/api-query-objects";
+import { caucolumServer } from "@/api-query-objects";
 
 export const getServerSideProps = async () => {
-    const response = await caucolumServerObject.breed_hound_images();
+    const response = await caucolumServer.breed_hound_images();
     return {
         props: {
             listByBreed: response.message
@@ -142,10 +142,10 @@ export default Index;
 ### 5. Client-Side Usage (React Component)
 
 ```tsx
-import { caucolumClientObject } from "@/api-query-objects";
+import { caucolumClient } from "@/api-query-objects";
 
 const Index = () => {
-    const { makeRequest, data, isSuccess } = caucolumClientObject.breeds_image_random();
+    const { makeRequest, data, isSuccess } = caucolumClient.breeds_image_random();
     return <div>
         <div>
             {isSuccess && <img src={data.message} alt="" />}

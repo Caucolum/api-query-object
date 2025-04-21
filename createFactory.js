@@ -13,12 +13,12 @@ const content = `
 import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
 import api from "./api";
 
-const caucolumServerObject = createServerNextArchitecture(api);
-const caucolumClientObject = createClientNextArchitecture(caucolumServerObject, api);
+const caucolumServer = createServerNextArchitecture(api);
+const caucolumClient = createClientNextArchitecture(caucolumServer, api);
 
 export {
-    caucolumServerObject,
-    caucolumClientObject
+    caucolumServer,
+    caucolumClient
 }
 `;
 
