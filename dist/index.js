@@ -37,11 +37,12 @@ module.exports = __toCommonJS(index_exports);
 
 // src/useServiceCall/index.tsx
 var import_react = require("react");
-var useServiceCall = ({ fn }) => {
+var useServiceCall = ({ fn, config }) => {
   const [status, setStatus] = (0, import_react.useState)("idle");
   const [args, setArgs] = (0, import_react.useState)(null);
   const [error, setError] = (0, import_react.useState)(null);
   const [data, setData] = (0, import_react.useState)(null);
+  const redirector = config?.redirector;
   const makeRequest = async (...args2) => {
     setStatus("loading");
     setArgs(args2[0]);
@@ -49,7 +50,9 @@ var useServiceCall = ({ fn }) => {
       const response = await fn(...args2);
       setData(response);
       setStatus("loaded");
-      return response;
+      if (redirector) {
+        window.location.href = redirector;
+      }
     } catch (err) {
       setStatus("error");
       setError(err);
@@ -123,12 +126,13 @@ function createApiClass(list) {
     }
   };
 }
-function createPrimitiveClient(serverApi) {
+function createPrimitiveClient(serverApi, list) {
   class PrimitiveClient {
     constructor() {
       Object.keys(serverApi).forEach((key) => {
+        const redirector = list[key]?.redirector;
         this[key] = () => {
-          return useServiceCall_default({ fn: serverApi[key] });
+          return useServiceCall_default({ fn: serverApi[key], config: { redirector } });
         };
       });
     }
@@ -141,7 +145,7 @@ function createServerNextArchitecture(list) {
   return server;
 }
 function createClientNextArchitecture(serverApi, list) {
-  const PrimitiveClient = createPrimitiveClient(serverApi);
+  const PrimitiveClient = createPrimitiveClient(serverApi, list);
   const client = new PrimitiveClient();
   return client;
 }

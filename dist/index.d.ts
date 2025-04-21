@@ -8,6 +8,7 @@ type ApiConfig = {
         ARGS_PROPS?: unknown;
         DATA_PROPS?: unknown;
         ERROR_PROPS?: unknown;
+        redirector?: string;
     };
 };
 interface ApiClientResourcesProps<T = any, K = any, M = any> {
@@ -30,6 +31,7 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly authenticated: boolean;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
+    readonly redirector?: string;
 }
 declare function createServerNextArchitecture<T extends ApiConfig>(list: T): ServerApiMethods<T>;
 declare function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): ClientApiMethods<K>;
