@@ -3,11 +3,13 @@
 import { UseServiceCallProps, UseServiceCallStatusProps } from "../types";
 import { useState } from "react";
 
-const useServiceCall = ({ fn }: UseServiceCallProps) => {
+const useServiceCall = ({ fn, config }: UseServiceCallProps) => {
     const [status, setStatus] = useState<UseServiceCallStatusProps>('idle');
     const [args, setArgs] = useState(null);
     const [error, setError] = useState(null);
     const [data, setData] = useState(null);
+
+    const redirector = config?.redirector;
 
     const makeRequest = async (...args: any) => {
         setStatus('loading');
@@ -16,7 +18,10 @@ const useServiceCall = ({ fn }: UseServiceCallProps) => {
             const response = await fn(...args);
             setData(response);
             setStatus("loaded");
-            return response;
+
+            if (redirector) {
+                window.location.href = redirector;
+            }
         } catch (err: any) {
             setStatus("error");
             setError(err);

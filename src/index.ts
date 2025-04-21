@@ -10,6 +10,7 @@ export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly authenticated: boolean;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
+    readonly redirector?: string;
 }
 
 function createApiClass<T extends ApiConfig>(list: T) {
@@ -30,12 +31,13 @@ function createApiClass<T extends ApiConfig>(list: T) {
     };
 }
 
-function createPrimitiveClient<T extends ServerApiMethods<any>>(serverApi: T): new () => { [K in keyof T]: () => any } {
+function createPrimitiveClient<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): new () => { [K in keyof T]: () => any } {
     class PrimitiveClient {
         constructor() {
             Object.keys(serverApi).forEach((key) => {
+                const redirector = list[key as keyof K]?.redirector;
                 (this as any)[key] = () => {
-                    return useServiceCall({ fn: serverApi[key as keyof T] }) as ApiClientResourcesProps; 
+                    return useServiceCall({ fn: serverApi[key as keyof T], config: { redirector } }) as ApiClientResourcesProps; 
                 };
             });
         }
@@ -52,7 +54,7 @@ function createServerNextArchitecture<T extends ApiConfig>(list: T) {
 }
 
 function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K) {
-    const PrimitiveClient = createPrimitiveClient(serverApi);
+    const PrimitiveClient = createPrimitiveClient(serverApi, list);
     const client: ClientApiMethods<typeof list> = new PrimitiveClient();
     return client;
 }
