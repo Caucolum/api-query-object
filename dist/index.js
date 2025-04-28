@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,14 +15,6 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
@@ -63,17 +53,13 @@ var useServiceCall = ({ fn, config }) => {
 var useServiceCall_default = useServiceCall;
 
 // src/axios/index.ts
-var import_axios = __toESM(require("axios"));
-var createConfiguredAxiosInstance = (options) => {
-  const axiosInstance = import_axios.default.create({
-    ...options,
-    baseURL: options.url,
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
+var createConfiguredAxiosInstance = ({ gssp, axiosInstance }) => {
   axiosInstance.interceptors.request.use(
     (config) => {
+      if (gssp) {
+        const userConfig = gssp(config);
+        return userConfig;
+      }
       return config;
     },
     (error) => {
@@ -93,16 +79,10 @@ var createConfiguredAxiosInstance = (options) => {
 
 // src/http/index.ts
 var Http = class {
-  publicClient() {
+  client(gssp, axiosInstance) {
     return createConfiguredAxiosInstance({
-      url: "",
-      withBearerToken: false
-    });
-  }
-  privateClient() {
-    return createConfiguredAxiosInstance({
-      url: "",
-      withBearerToken: true
+      gssp,
+      axiosInstance
     });
   }
 };
@@ -110,17 +90,17 @@ var http = new Http();
 var http_default = http;
 
 // src/index.ts
-function createApiClass(list) {
+function createApiClass(list, axiosConfig, axiosInstance) {
   return class Api {
     constructor() {
       Object.keys(list).forEach((key) => {
         this[key] = async (params) => {
-          return this.request(list[key].method, list[key].url, list[key].authenticated, params);
+          return this.request(list[key].method, list[key].url, params);
         };
       });
     }
-    async request(method, url, authenticated, params) {
-      const client = authenticated ? http_default.privateClient() : http_default.publicClient();
+    async request(method, url, params) {
+      const client = http_default.client(axiosConfig, axiosInstance);
       const response = await client[method](url, { params });
       return response.data;
     }
@@ -139,8 +119,8 @@ function createPrimitiveClient(serverApi, list) {
   }
   return PrimitiveClient;
 }
-function createServerNextArchitecture(list) {
-  const PrimitiveServer = createApiClass(list);
+function createServerNextArchitecture(list, axiosConfig, axiosInstance) {
+  const PrimitiveServer = createApiClass(list, axiosConfig, axiosInstance);
   const server = new PrimitiveServer();
   return server;
 }

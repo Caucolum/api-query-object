@@ -26,17 +26,13 @@ var useServiceCall = ({ fn, config }) => {
 var useServiceCall_default = useServiceCall;
 
 // src/axios/index.ts
-import axios from "axios";
-var createConfiguredAxiosInstance = (options) => {
-  const axiosInstance = axios.create({
-    ...options,
-    baseURL: options.url,
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
+var createConfiguredAxiosInstance = ({ gssp, axiosInstance }) => {
   axiosInstance.interceptors.request.use(
     (config) => {
+      if (gssp) {
+        const userConfig = gssp(config);
+        return userConfig;
+      }
       return config;
     },
     (error) => {
@@ -56,16 +52,10 @@ var createConfiguredAxiosInstance = (options) => {
 
 // src/http/index.ts
 var Http = class {
-  publicClient() {
+  client(gssp, axiosInstance) {
     return createConfiguredAxiosInstance({
-      url: "",
-      withBearerToken: false
-    });
-  }
-  privateClient() {
-    return createConfiguredAxiosInstance({
-      url: "",
-      withBearerToken: true
+      gssp,
+      axiosInstance
     });
   }
 };
@@ -73,17 +63,17 @@ var http = new Http();
 var http_default = http;
 
 // src/index.ts
-function createApiClass(list) {
+function createApiClass(list, axiosConfig, axiosInstance) {
   return class Api {
     constructor() {
       Object.keys(list).forEach((key) => {
         this[key] = async (params) => {
-          return this.request(list[key].method, list[key].url, list[key].authenticated, params);
+          return this.request(list[key].method, list[key].url, params);
         };
       });
     }
-    async request(method, url, authenticated, params) {
-      const client = authenticated ? http_default.privateClient() : http_default.publicClient();
+    async request(method, url, params) {
+      const client = http_default.client(axiosConfig, axiosInstance);
       const response = await client[method](url, { params });
       return response.data;
     }
@@ -102,8 +92,8 @@ function createPrimitiveClient(serverApi, list) {
   }
   return PrimitiveClient;
 }
-function createServerNextArchitecture(list) {
-  const PrimitiveServer = createApiClass(list);
+function createServerNextArchitecture(list, axiosConfig, axiosInstance) {
+  const PrimitiveServer = createApiClass(list, axiosConfig, axiosInstance);
   const server = new PrimitiveServer();
   return server;
 }

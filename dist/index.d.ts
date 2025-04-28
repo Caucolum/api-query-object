@@ -1,3 +1,5 @@
+import { AxiosInstance } from 'axios';
+
 type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
 type MethodProps = 'get' | 'post' | 'put' | 'delete';
 type ApiConfig = {
@@ -33,7 +35,7 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly DATA_PROPS?: DataProps;
     readonly redirector?: string;
 }
-declare function createServerNextArchitecture<T extends ApiConfig>(list: T): ServerApiMethods<T>;
+declare function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance): ServerApiMethods<T>;
 declare function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): ClientApiMethods<K>;
 
 export { type ApiEndpoint, createClientNextArchitecture, createServerNextArchitecture };
