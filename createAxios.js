@@ -9,7 +9,7 @@ const projectRoot = path.resolve(__dirname, '..', '..', '..');
 const dirPath = path.join(projectRoot, 'src', 'api-query-objects');
 const filePath = path.join(dirPath, 'axios.ts');
 
-const content = `
+const content =`
 import axios, { AxiosRequestConfig } from "axios";
 
 const axiosConfig = (config: AxiosRequestConfig): AxiosRequestConfig => {
