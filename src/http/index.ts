@@ -2,17 +2,9 @@ import { createConfiguredAxiosInstance } from "../axios";
 import { AxiosInstance } from "axios";
 
 class Http {
-    public publicClient() {
+    public client(gssp: any, axiosInstance: AxiosInstance) {
         return createConfiguredAxiosInstance({
-            url: '',
-            withBearerToken: false,
-        }) as AxiosInstance;
-    }
-  
-    public privateClient() {
-        return createConfiguredAxiosInstance({
-            url: '',
-            withBearerToken: true,
+            gssp, axiosInstance
         }) as AxiosInstance;
     }
 }

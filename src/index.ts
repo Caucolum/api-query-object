@@ -3,6 +3,7 @@ import { ApiClientResourcesProps } from "./types";
 
 import useServiceCall from "./useServiceCall";
 import http from "./http";
+import { AxiosInstance } from "axios";
 
 export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly url: string;
@@ -13,18 +14,18 @@ export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly redirector?: string;
 }
 
-function createApiClass<T extends ApiConfig>(list: T) {
+function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
     return class Api {
         constructor() {
             Object.keys(list).forEach((key) => {
                 (this as any)[key] = async (params?: any) => {
-                    return this.request(list[key].method, list[key].url, list[key].authenticated, params);
+                    return this.request(list[key].method, list[key].url, params);
                 };
             });
         }
     
-        async request(method: MethodProps, url: string, authenticated?: boolean, params?: any): Promise<any> {
-            const client = authenticated ? http.privateClient() : http.publicClient();
+        async request(method: MethodProps, url: string, params?: any): Promise<any> {
+            const client = http.client(axiosConfig, axiosInstance);
             const response = await client[method](url, { params });
             return response.data;
         }
@@ -46,8 +47,8 @@ function createPrimitiveClient<T extends ServerApiMethods<any>, K extends ApiCon
     return PrimitiveClient as new () => { [K in keyof T]: () => any };
 }
 
-function createServerNextArchitecture<T extends ApiConfig>(list: T) {
-    const PrimitiveServer = createApiClass(list);
+function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
+    const PrimitiveServer = createApiClass(list, axiosConfig, axiosInstance);
     //@ts-ignore
     const server: ServerApiMethods<typeof list> = new PrimitiveServer();
     return server;

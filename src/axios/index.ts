@@ -1,24 +1,17 @@
-import axios from "axios";
-// import { parseCookies } from "nookies";
+import { AxiosInstance, AxiosRequestConfig } from "axios";
 
-export const createConfiguredAxiosInstance = (options: any) => {
-    const axiosInstance = axios.create({
-        ...options,
-        baseURL: options.url,
-        headers: {
-            "Content-Type": "application/json",
-        }
-    });
+interface CreateConfiguredAxiosInstanceProps {
+    gssp: any,
+    axiosInstance: AxiosInstance
+}
 
+export const createConfiguredAxiosInstance = ({ gssp, axiosInstance }: CreateConfiguredAxiosInstanceProps) => {
     axiosInstance.interceptors.request.use(
-        (config: any) => {
-            // if (options.withBearerToken) {
-            //     const { token } = parseCookies();
-
-            //     if (token) {
-            //         config.headers.Authorization = `Bearer ${token}`;
-            //     }
-            // }
+        (config: AxiosRequestConfig) => {
+            if (gssp) {
+                const userConfig = gssp(config);
+                return userConfig;
+            }
 
             return config;
         }, 

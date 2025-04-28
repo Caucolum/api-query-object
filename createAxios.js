@@ -7,20 +7,26 @@ const __dirname = path.dirname(__filename);
 
 const projectRoot = path.resolve(__dirname, '..', '..', '..');
 const dirPath = path.join(projectRoot, 'src', 'api-query-objects');
-const filePath = path.join(dirPath, 'factory.ts');
+const filePath = path.join(dirPath, 'axios.ts');
 
 const content = `
-import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
-import { axiosConfig, axiosInstance } from "./axios";
-import api from "./api";
+import axios, { AxiosRequestConfig } from "axios";
 
-const serverQueriesObject = createServerNextArchitecture(api, axiosConfig, axiosInstance);
-const caucolumClient = createClientNextArchitecture(caucolumServer, api);
+const axiosConfig = (config: AxiosRequestConfig): AxiosRequestConfig => {
 
-export {
-    caucolumServer,
-    caucolumClient
+    return config;
 }
+
+const axiosInstance = axios.create({
+    headers: {
+        "Content-Type": "application/json",
+    }
+});
+
+export { 
+    axiosConfig,
+    axiosInstance
+};
 `;
 
 if (!fs.existsSync(dirPath)) {
