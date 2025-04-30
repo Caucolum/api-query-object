@@ -12,9 +12,10 @@ const filePath = path.join(dirPath, 'factory.ts');
 const content = `
 import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
 import { axiosConfig, axiosInstance } from "./axios";
+
 import api from "./api";
 
-const serverQueriesObject = createServerNextArchitecture(api, axiosConfig, axiosInstance);
+const caucolumServer = createServerNextArchitecture(api, axiosConfig, axiosInstance);
 const caucolumClient = createClientNextArchitecture(caucolumServer, api);
 
 export {

@@ -11,6 +11,7 @@ const filePath = path.join(dirPath, 'axios.ts');
 
 const content =`
 import axios, { AxiosRequestConfig } from "axios";
+import { baseURL } from "./api";
 
 const axiosConfig = (config: AxiosRequestConfig): AxiosRequestConfig => {
 
@@ -18,6 +19,7 @@ const axiosConfig = (config: AxiosRequestConfig): AxiosRequestConfig => {
 }
 
 const axiosInstance = axios.create({
+    baseURL,
     headers: {
         "Content-Type": "application/json",
     }
