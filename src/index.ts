@@ -1,17 +1,17 @@
-import { ApiConfig, ClientApiMethods, MethodProps, ServerApiMethods } from "./types";
+import { ApiConfig, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods, ServerSideProps } from "./types";
 import { ApiClientResourcesProps } from "./types";
+import { AxiosInstance } from "axios";
 
 import useServiceCall from "./useServiceCall";
 import http from "./http";
-import { AxiosInstance } from "axios";
 
 export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly url: string;
     readonly method: MethodProps;
-    readonly authenticated: boolean;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
-    readonly redirector?: string;
+    readonly serverSideResources?: ServerSideProps;
+    readonly clientSideResources?: ClientSideRequestProps;
 }
 
 function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
@@ -36,9 +36,9 @@ function createPrimitiveClient<T extends ServerApiMethods<any>, K extends ApiCon
     class PrimitiveClient {
         constructor() {
             Object.keys(serverApi).forEach((key) => {
-                const redirector = list[key as keyof K]?.redirector;
+                const resources = list[key as keyof K]?.clientSideResources;
                 (this as any)[key] = () => {
-                    return useServiceCall({ fn: serverApi[key as keyof T], config: { redirector } }) as ApiClientResourcesProps; 
+                    return useServiceCall({ fn: serverApi[key as keyof T], resources }) as ApiClientResourcesProps; 
                 };
             });
         }

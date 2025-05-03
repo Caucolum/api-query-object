@@ -1,34 +1,47 @@
-"use client"
+"use client";
 
 import { UseServiceCallProps, UseServiceCallStatusProps } from "../types";
 import { useState } from "react";
 
-const useServiceCall = ({ fn, config }: UseServiceCallProps) => {
+const useServiceCall = ({ fn, resources }: UseServiceCallProps) => {
+    const onSuccess = resources?.onSuccess;
+    const onError = resources?.onError;
+    const router = useRouter();
+    
     const [status, setStatus] = useState<UseServiceCallStatusProps>('idle');
-    const [args, setArgs] = useState(null);
     const [error, setError] = useState(null);
     const [data, setData] = useState(null);
-
-    const redirector = config?.redirector;
+    const [args, setArgs] = useState(null);
 
     const makeRequest = async (...args: any) => {
         setStatus('loading');
-        setArgs(args[0]);
+        setArgs(args);
+
         try {
             const response = await fn(...args);
-            setData(response);
             setStatus("loaded");
+            setData(response);
 
-            if (redirector) {
-                window.location.href = redirector;
+            if (onSuccess) {
+                onSuccess({ data: response, router });
             }
-        } catch (err: any) {
+        } catch (error: any) {
             setStatus("error");
-            setError(err);
+            setError(error);
+
+            if (onError) {
+                onError({ error, router });
+            }
         }
     }
 
-    return { data, status, error, args, makeRequest };
+    return { 
+        data, 
+        status, 
+        error, 
+        args, 
+        makeRequest 
+    };
 }
 
 export default useServiceCall;
