@@ -2,6 +2,17 @@ import { AxiosInstance } from 'axios';
 
 type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
 type MethodProps = 'get' | 'post' | 'put' | 'delete';
+interface ClientSideRequestProps {
+    readonly disabledClientSideRequest?: boolean;
+    readonly onSuccess?: ({ data, redirector }: {
+        data?: any;
+        redirector: (url: string) => void;
+    }) => void;
+    readonly onError?: ({ error, redirector }: {
+        error?: any;
+        redirector: (url: string) => void;
+    }) => void;
+}
 type ApiConfig = {
     [key: string]: {
         url: string;
@@ -10,7 +21,8 @@ type ApiConfig = {
         ARGS_PROPS?: unknown;
         DATA_PROPS?: unknown;
         ERROR_PROPS?: unknown;
-        redirector?: string;
+        serverSideResources?: ServerSideProps;
+        clientSideResources?: ClientSideRequestProps;
     };
 };
 interface ApiClientResourcesProps<T = any, K = any, M = any> {
@@ -26,14 +38,17 @@ type ServerApiMethods<T extends ApiConfig> = {
 type ClientApiMethods<T extends ApiConfig> = {
     [K in keyof T]: (params?: any) => ApiClientResourcesProps<T[K]["DATA_PROPS"], T[K]["ARGS_PROPS"], T[K]["ERROR_PROPS"]>;
 };
+interface ServerSideProps {
+    disabledServerSideRequest?: boolean;
+}
 
 interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly url: string;
     readonly method: MethodProps;
-    readonly authenticated: boolean;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
-    readonly redirector?: string;
+    readonly serverSideResources?: ServerSideProps;
+    readonly clientSideResources?: ClientSideRequestProps;
 }
 declare function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance): ServerApiMethods<T>;
 declare function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): ClientApiMethods<K>;

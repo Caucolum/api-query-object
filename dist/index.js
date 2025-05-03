@@ -27,28 +27,41 @@ module.exports = __toCommonJS(index_exports);
 
 // src/useServiceCall/index.tsx
 var import_react = require("react");
-var useServiceCall = ({ fn, config }) => {
+var useServiceCall = ({ fn, resources }) => {
+  const onSuccess = resources?.onSuccess;
+  const onError = resources?.onError;
   const [status, setStatus] = (0, import_react.useState)("idle");
-  const [args, setArgs] = (0, import_react.useState)(null);
   const [error, setError] = (0, import_react.useState)(null);
   const [data, setData] = (0, import_react.useState)(null);
-  const redirector = config?.redirector;
+  const [args, setArgs] = (0, import_react.useState)(null);
+  const redirector = (url) => {
+    window.location.href = url;
+  };
   const makeRequest = async (...args2) => {
     setStatus("loading");
-    setArgs(args2[0]);
+    setArgs(args2);
     try {
       const response = await fn(...args2);
-      setData(response);
       setStatus("loaded");
-      if (redirector) {
-        window.location.href = redirector;
+      setData(response);
+      if (onSuccess) {
+        onSuccess({ data: response, redirector });
       }
-    } catch (err) {
+    } catch (error2) {
       setStatus("error");
-      setError(err);
+      setError(error2);
+      if (onError) {
+        onError({ error: error2, redirector });
+      }
     }
   };
-  return { data, status, error, args, makeRequest };
+  return {
+    data,
+    status,
+    error,
+    args,
+    makeRequest
+  };
 };
 var useServiceCall_default = useServiceCall;
 
@@ -110,9 +123,9 @@ function createPrimitiveClient(serverApi, list) {
   class PrimitiveClient {
     constructor() {
       Object.keys(serverApi).forEach((key) => {
-        const redirector = list[key]?.redirector;
+        const resources = list[key]?.clientSideResources;
         this[key] = () => {
-          return useServiceCall_default({ fn: serverApi[key], config: { redirector } });
+          return useServiceCall_default({ fn: serverApi[key], resources });
         };
       });
     }

@@ -3,8 +3,8 @@ export type MethodProps = 'get' | 'post' | 'put' | 'delete';
 
 export interface ClientSideRequestProps {
     readonly disabledClientSideRequest?: boolean;
-    readonly onSuccess?: ({ data, router } : { data?: any, router: NextRouter }) => void;
-    readonly onError?: ({ error, router } : { error?: any, router: NextRouter }) => void;
+    readonly onSuccess?: ({ data, redirector } : { data?: any, redirector: (url: string) => void }) => void;
+    readonly onError?: ({ error, redirector } : { error?: any, redirector: (url: string) => void }) => void;
 }
 
 export interface UseServiceCallProps {
