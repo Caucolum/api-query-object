@@ -17,7 +17,6 @@ type ApiConfig = {
     [key: string]: {
         url: string;
         method: MethodProps;
-        authenticated: boolean;
         ARGS_PROPS?: unknown;
         DATA_PROPS?: unknown;
         ERROR_PROPS?: unknown;
