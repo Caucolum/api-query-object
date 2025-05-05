@@ -1,3 +1,5 @@
+import { AxiosRequestConfig } from "axios";
+
 export type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
 export type MethodProps = 'get' | 'post' | 'put' | 'delete';
 
@@ -42,3 +44,5 @@ export type ClientApiMethods<T extends ApiConfig> = {
 export interface ServerSideProps {
     disabledServerSideRequest?: boolean
 }
+
+export type AxiosGsspProps = (config: AxiosRequestConfig) => AxiosRequestConfig;

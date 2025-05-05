@@ -1,4 +1,4 @@
-import { ApiConfig, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods, ServerSideProps } from "./types";
+import { ApiConfig, AxiosGsspProps, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods, ServerSideProps } from "./types";
 import { ApiClientResourcesProps } from "./types";
 import { AxiosInstance } from "axios";
 
@@ -47,16 +47,54 @@ function createPrimitiveClient<T extends ServerApiMethods<any>, K extends ApiCon
     return PrimitiveClient as new () => { [K in keyof T]: () => any };
 }
 
-function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
-    const PrimitiveServer = createApiClass(list, axiosConfig, axiosInstance);
+type FilteredServerApi<T> = {
+    [K in keyof T as T[K] extends { serverSideResources?: { disabledServerSideRequest?: true } } ? (
+        T[K]['serverSideResources'] extends { disabledServerSideRequest: true } ? never : K
+    ) : K]: T[K];
+};
+
+type FilteredClientApi<T> = {
+    [K in keyof T as T[K] extends { clientSideResources?: { disabledClientSideRequest?: true } } ? (
+        T[K]['clientSideResources'] extends { disabledClientSideRequest: true } ? never : K
+    ) : K]: T[K];
+};
+
+function filterServerSideEndpoints<T extends ApiConfig>(list: T): FilteredServerApi<T> {
+    const filtered = Object.fromEntries(
+        Object.entries(list).filter(([_, value]) => {
+            return !('serverSideResources' in value && value.serverSideResources?.disabledServerSideRequest === true);
+        })
+    );
+    
+    return filtered as FilteredServerApi<T>;
+}
+
+function filterClientSideEndpoints<T extends ApiConfig>(list: T): FilteredClientApi<T> {
+    const filtered = Object.fromEntries(
+        Object.entries(list).filter(([_, value]) => {
+            return !('disabledClientSideRequest' in value && value.clientSideResources?.disabledClientSideRequest === true);
+        })
+    );
+
+    return filtered as FilteredClientApi<T>;
+}
+
+function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance) {
+    const filteredList = filterServerSideEndpoints(list);
+    const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
     //@ts-ignore
-    const server: ServerApiMethods<typeof list> = new PrimitiveServer();
+    const server: ServerApiMethods<typeof filteredList> = new PrimitiveServer();
     return server;
 }
 
-function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K) {
-    const PrimitiveClient = createPrimitiveClient(serverApi, list);
-    const client: ClientApiMethods<typeof list> = new PrimitiveClient();
+function createClientNextArchitecture<T extends ApiConfig,>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance) {
+    const filteredList = filterClientSideEndpoints(list);
+    const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
+    //@ts-ignore
+    const server: ServerApiMethods<typeof filteredList> = new PrimitiveServer();
+    const PrimitiveClient = createPrimitiveClient(server, filteredList);
+    const client: ClientApiMethods<typeof filteredList> = new PrimitiveClient();
+
     return client;
 }
 

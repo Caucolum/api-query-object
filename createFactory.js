@@ -16,7 +16,7 @@ import { axiosConfig, axiosInstance } from "./axios";
 import api from "./api";
 
 const caucolumServer = createServerNextArchitecture(api, axiosConfig, axiosInstance);
-const caucolumClient = createClientNextArchitecture(caucolumServer, api);
+const caucolumClient = createClientNextArchitecture(api, axiosConfig, axiosInstance);
 
 export {
     caucolumServer,

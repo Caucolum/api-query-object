@@ -132,13 +132,33 @@ function createPrimitiveClient(serverApi, list) {
   }
   return PrimitiveClient;
 }
+function filterServerSideEndpoints(list) {
+  const filtered = Object.fromEntries(
+    Object.entries(list).filter(([_, value]) => {
+      return !("serverSideResources" in value && value.serverSideResources?.disabledServerSideRequest === true);
+    })
+  );
+  return filtered;
+}
+function filterClientSideEndpoints(list) {
+  const filtered = Object.fromEntries(
+    Object.entries(list).filter(([_, value]) => {
+      return !("disabledClientSideRequest" in value && value.clientSideResources?.disabledClientSideRequest === true);
+    })
+  );
+  return filtered;
+}
 function createServerNextArchitecture(list, axiosConfig, axiosInstance) {
-  const PrimitiveServer = createApiClass(list, axiosConfig, axiosInstance);
+  const filteredList = filterServerSideEndpoints(list);
+  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
   const server = new PrimitiveServer();
   return server;
 }
-function createClientNextArchitecture(serverApi, list) {
-  const PrimitiveClient = createPrimitiveClient(serverApi, list);
+function createClientNextArchitecture(list, axiosConfig, axiosInstance) {
+  const filteredList = filterClientSideEndpoints(list);
+  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
+  const server = new PrimitiveServer();
+  const PrimitiveClient = createPrimitiveClient(server, filteredList);
   const client = new PrimitiveClient();
   return client;
 }

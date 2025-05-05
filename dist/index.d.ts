@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { AxiosRequestConfig, AxiosInstance } from 'axios';
 
 type UseServiceCallStatusProps = 'idle' | 'loading' | 'loaded' | 'error';
 type MethodProps = 'get' | 'post' | 'put' | 'delete';
@@ -40,6 +40,7 @@ type ClientApiMethods<T extends ApiConfig> = {
 interface ServerSideProps {
     disabledServerSideRequest?: boolean;
 }
+type AxiosGsspProps = (config: AxiosRequestConfig) => AxiosRequestConfig;
 
 interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly url: string;
@@ -49,7 +50,25 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly serverSideResources?: ServerSideProps;
     readonly clientSideResources?: ClientSideRequestProps;
 }
-declare function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance): ServerApiMethods<T>;
-declare function createClientNextArchitecture<T extends ServerApiMethods<any>, K extends ApiConfig>(serverApi: T, list: K): ClientApiMethods<K>;
+type FilteredServerApi<T> = {
+    [K in keyof T as T[K] extends {
+        serverSideResources?: {
+            disabledServerSideRequest?: true;
+        };
+    } ? (T[K]['serverSideResources'] extends {
+        disabledServerSideRequest: true;
+    } ? never : K) : K]: T[K];
+};
+type FilteredClientApi<T> = {
+    [K in keyof T as T[K] extends {
+        clientSideResources?: {
+            disabledClientSideRequest?: true;
+        };
+    } ? (T[K]['clientSideResources'] extends {
+        disabledClientSideRequest: true;
+    } ? never : K) : K]: T[K];
+};
+declare function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance): ServerApiMethods<FilteredServerApi<T>>;
+declare function createClientNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance): ClientApiMethods<FilteredClientApi<T>>;
 
 export { type ApiEndpoint, createClientNextArchitecture, createServerNextArchitecture };
