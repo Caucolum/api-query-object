@@ -160,69 +160,6 @@ const Index = () => {
 export default Index;
 ```
 
-## Api list resources
-
-```ts
-
-interface UserProps {
-    email: string,
-    name: string,
-    id: string,
-}
-
-interface PostLoginParamsProps {
-    email: string,
-    password: string,
-}
-
-interface PostLoginResponse {
-    token: string,
-    id: string,
-}
-
-const api = {
-    getUser: {
-        url: '/auth/user',
-        method: 'get',
-        DATA_PROPS: {} as UserProps,
-        clientSideResources: {
-            disabledClientSideRequest: true,
-        },
-        serverSideResources: {
-            disabledServerSideRequest: false,
-        }
-    },
-    login: {
-        url: '/auth/login',
-        method: 'post',
-        ARGS_PROPS: {} as PostLoginParamsProps,
-        DATA_PROPS: {} as PostLoginResponse,
-        clientSideResources: {
-            disabledClientSideRequest: false,
-            async onSuccess({ data, redirector }) {
-                const token = data.token as string;
-                const id = data.id as string;
-
-                setCookie(null, "token", token, {
-                    path: "/",
-                    maxAge: 30 * 24 * 60 * 60,
-                });
-    
-                setCookie(null, "id", id, {
-                    path: "/",
-                    maxAge: 30 * 24 * 60 * 60,
-                });
-
-                redirector(`/mainly/page`);
-            },
-        },
-        serverSideResources: {
-            disabledServerSideRequest: true,
-        }
-    }
-} as const satisfies Record<string, ApiEndpoint>;
-```
-
 ## Features
 
 HTTP requests have required attributes and other customizable features.
@@ -265,3 +202,42 @@ getUser: {
 }
  ```
 Note that the `getUser` request will be used only on the server side, so it won't be exposed in the `caucolumClient` object.
+
+### 2. Client-side example: 
+
+```ts
+login: {
+    url: '/auth/login',
+    method: 'post',
+    ARGS_PROPS: {} as PostLoginParamsProps,
+    DATA_PROPS: {} as PostLoginResponse,
+    clientSideResources: {
+        disabledClientSideRequest: false,
+        async onSuccess({ data, redirector }) {
+            const token = data.token as string;
+            const id = data.id as string;
+
+            setCookie(null, "token", token, {
+                path: "/",
+                maxAge: 30 * 24 * 60 * 60,
+            });
+
+            setCookie(null, "id", id, {
+                path: "/",
+                maxAge: 30 * 24 * 60 * 60,
+            });
+
+            redirector(`/mainly/page`);
+        },
+    },
+    serverSideResources: {
+        disabledServerSideRequest: true,
+    }
+}
+```
+Login request will be showed just on the client object. Here there are specific resources.
+- **`onSuccess`** function than contain callback:
+  - `data` request response.
+  - `redirector` redirect for other page.
+    
+Note than data can be used to request actions before dispatch to other page. 
