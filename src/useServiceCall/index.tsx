@@ -23,10 +23,11 @@ const useServiceCall = ({ fn, resources }: UseServiceCallProps) => {
         try {
             const response = await fn(...args);
             setStatus("loaded");
-            setData(response);
-
+            
             if (onSuccess) {
                 onSuccess({ data: response, redirector });
+            } else {
+                setData(response);
             }
         } catch (error: any) {
             setStatus("error");
