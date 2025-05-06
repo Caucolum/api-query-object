@@ -235,9 +235,9 @@ login: {
     }
 }
 ```
-Login request will be showed just on the client object. Here there are specific resources.
-- **`onSuccess`** function than contain callback:
-  - `data` request response.
-  - `redirector` redirect for other page.
+The login request will be handled only on the client side. Below are the specific resources:
+- **`onSuccess`** function than contains a callback:
+  - `data` the response from the request.
+  - `redirector` used to redirect to another page.
     
-Note than data can be used to request actions before dispatch to other page. 
+Note: `data` can be used to trigger actions before redirecting to another page.
