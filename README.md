@@ -1,4 +1,4 @@
-# Next Client Architecture
+# Api Query Object
 
 Api-query-object is a JavaScript library that quickly and automatically creates HTTP requests, aligning with the client-server architecture.
 
@@ -13,10 +13,10 @@ With Api-query-object, the user can list their endpoints, automatically generati
   - `args`: Parameters of the last request.
   - `status`: Represents the current state of the request.  
     It can be one of the following values:
-    - `'idle'`: No request has been made yet.
-    - `'loading'`: A request is currently in progress.
-    - `'loaded'`: The request was completed successfully.
-    - `'error'`: The request failed due to an error.
+    - `idle`: No request has been made yet.
+    - `loading`: A request is currently in progress.
+    - `loaded`: The request was completed successfully.
+    - `error`: The request failed due to an error.
 
 ## Usage Example
 
@@ -31,6 +31,7 @@ npm i @caucolum/api-query-object
 The created folder api-query-objects contains files for managing API queries.
 
 `api.ts`: This file stores a list of available API endpoints used in the project.
+`axios.ts`: This file defines the configuration used for making HTTP requests with Axios.
 `factory.ts`: This file is responsible for creating and returning objects that represent specific API query configurations.
 
 ```txt
@@ -38,6 +39,7 @@ The created folder api-query-objects contains files for managing API queries.
 ├── 📁 src 
     └── 📁 api-query-objects
         └── 📄 api.ts
+        └── 📄 axios.ts
         └── 📄 factory.ts
 ```
 
@@ -59,10 +61,11 @@ The objects are automatically created when implementing the user api endpoints:
 
 ```ts
 import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
+import { axiosConfig, axiosInstance } from "./axios";
 import api from "./api";
 
-const caucolumServer = createServerNextArchitecture(api);
-const caucolumClient = createClientNextArchitecture(caucolumServer, api);
+const caucolumServer = createServerNextArchitecture(api, axiosConfig, axiosInstance);
+const caucolumClient = createClientNextArchitecture(api, axiosConfig, axiosInstance);
 
 export {
     caucolumServer,
@@ -156,3 +159,109 @@ const Index = () => {
 
 export default Index;
 ```
+
+## Api list resources
+
+```ts
+
+interface UserProps {
+    email: string,
+    name: string,
+    id: string,
+}
+
+interface PostLoginParamsProps {
+    email: string,
+    password: string,
+}
+
+interface PostLoginResponse {
+    token: string,
+    id: string,
+}
+
+const api = {
+    getUser: {
+        url: '/auth/user',
+        method: 'get',
+        DATA_PROPS: {} as UserProps,
+        clientSideResources: {
+            disabledClientSideRequest: true,
+        },
+        serverSideResources: {
+            disabledServerSideRequest: false,
+        }
+    },
+    login: {
+        url: '/auth/login',
+        method: 'post',
+        ARGS_PROPS: {} as PostLoginParamsProps,
+        DATA_PROPS: {} as PostLoginResponse,
+        clientSideResources: {
+            disabledClientSideRequest: false,
+            async onSuccess({ data, redirector }) {
+                const token = data.token as string;
+                const id = data.id as string;
+
+                setCookie(null, "token", token, {
+                    path: "/",
+                    maxAge: 30 * 24 * 60 * 60,
+                });
+    
+                setCookie(null, "id", id, {
+                    path: "/",
+                    maxAge: 30 * 24 * 60 * 60,
+                });
+
+                redirector(`/mainly/page`);
+            },
+        },
+        serverSideResources: {
+            disabledServerSideRequest: true,
+        }
+    }
+} as const satisfies Record<string, ApiEndpoint>;
+```
+
+## Features
+
+HTTP requests have required attributes and other customizable features.
+
+Required attributes:
+
+- **`url`** the endpoint of the request.
+- **`method`** the HTTP method of the request. Them are:
+  - `get` `post` `put` `delete`
+
+Customizable features:
+- **`DATA_PROPS`** interface for the response object.
+- **`ARGS_PROPS`** interface for the request parameters object.
+- **`serverSideResources`** resources for requests on server side:
+  - `disabledServerSideRequest` determines whether the request should be made on the server side.
+- **`clientSideResources`** resources for requests on client side:
+  - `disabledClientSideRequest` determines whether the request should be made on the client side.
+  - `onSuccess` function that defines the behavior after a successful request.
+  - `onError` function that defines the behavior in case of an error.
+
+### 1. Server-side example: 
+
+```ts
+interface UserProps {
+    email: string,
+    name: string,
+    id: string,
+}
+ 
+getUser: {
+    url: '/auth/user',
+    method: 'get',
+    DATA_PROPS: {} as UserProps,
+    clientSideResources: {
+        disabledClientSideRequest: true
+    },
+    serverSideResources: {
+        disabledServerSideRequest: false
+    }
+}
+ ```
+Note that the `getUser` request will be used only on the server side, so it won't be exposed in the `caucolumClient` object.
