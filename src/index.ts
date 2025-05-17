@@ -26,7 +26,7 @@ function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosIns
     
         async request(method: MethodProps, url: string, params?: any): Promise<any> {
             const client = http.client(axiosConfig, axiosInstance);
-            const response = await client[method](url, { params });
+            const response = await client[method](url, params);
             return response.data;
         }
     };

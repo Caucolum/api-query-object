@@ -16,9 +16,10 @@ var useServiceCall = ({ fn, resources }) => {
     try {
       const response = await fn(...args2);
       setStatus("loaded");
-      setData(response);
       if (onSuccess) {
         onSuccess({ data: response, redirector });
+      } else {
+        setData(response);
       }
     } catch (error2) {
       setStatus("error");
@@ -87,7 +88,7 @@ function createApiClass(list, axiosConfig, axiosInstance) {
     }
     async request(method, url, params) {
       const client = http_default.client(axiosConfig, axiosInstance);
-      const response = await client[method](url, { params });
+      const response = await client[method](url, params);
       return response.data;
     }
   };
