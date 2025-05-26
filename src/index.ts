@@ -1,6 +1,6 @@
-import { ApiConfig, AxiosGsspProps, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods, ServerSideProps } from "./types";
+import { ApiConfig, AxiosGsspProps, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods } from "./types";
 import { ApiClientResourcesProps } from "./types";
-import { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
 
 import useServiceCall from "./useServiceCall";
 import http from "./http";
@@ -10,7 +10,9 @@ export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly method: MethodProps;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
-    readonly serverSideResources?: ServerSideProps;
+    readonly serverSideResources?: {
+        readonly disabledServerSideRequest?: boolean
+    };
     readonly clientSideResources?: ClientSideRequestProps;
 }
 
@@ -23,10 +25,9 @@ function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosIns
                 };
             });
         }
-    
+        
         async request(method: MethodProps, url: string, params?: any): Promise<any> {
-            const client = http.client(axiosConfig, axiosInstance);
-            const response = await client[method](url, params);
+            const response = await http.client(axiosConfig, axiosInstance)[method](url, { params });
             return response.data;
         }
     };
@@ -58,7 +59,7 @@ type FilteredClientApi<T> = {
         T[K]['clientSideResources'] extends { disabledClientSideRequest: true } ? never : K
     ) : K]: T[K];
 };
-
+  
 function filterServerSideEndpoints<T extends ApiConfig>(list: T): FilteredServerApi<T> {
     const filtered = Object.fromEntries(
         Object.entries(list).filter(([_, value]) => {
@@ -79,26 +80,39 @@ function filterClientSideEndpoints<T extends ApiConfig>(list: T): FilteredClient
     return filtered as FilteredClientApi<T>;
 }
 
-function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance) {
-    const filteredList = filterServerSideEndpoints(list);
-    const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
-    //@ts-ignore
-    const server: ServerApiMethods<typeof filteredList> = new PrimitiveServer();
-    return server;
+interface ObjectFactoryParamsProps<T> {
+    api: T,
+    axiosConfig?: AxiosGsspProps,
+    axiosInstance?: AxiosInstance
 }
 
-function createClientNextArchitecture<T extends ApiConfig,>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance) {
-    const filteredList = filterClientSideEndpoints(list);
-    const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
-    //@ts-ignore
-    const server: ServerApiMethods<typeof filteredList> = new PrimitiveServer();
-    const PrimitiveClient = createPrimitiveClient(server, filteredList);
-    const client: ClientApiMethods<typeof filteredList> = new PrimitiveClient();
+function createCaucolum<T extends ApiConfig>({ api, axiosConfig, axiosInstance }: ObjectFactoryParamsProps<T>) {
+    const UsedAxiosInstance = axiosInstance ? axiosInstance : axios.create({
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+    
+    const serverFilteredList = filterServerSideEndpoints(api);
+    const PrimitiveServer = createApiClass(serverFilteredList, axiosConfig, UsedAxiosInstance);
 
-    return client;
+    //@ts-ignore
+    const server: ServerApiMethods<typeof serverFilteredList> = new PrimitiveServer();
+
+    const clientFilteredList = filterClientSideEndpoints(api);
+    const ClientPrimitiveServer = createApiClass(clientFilteredList, axiosConfig, UsedAxiosInstance);
+
+    //@ts-ignore
+    const serverClient: ServerApiMethods<typeof clientFilteredList> = new ClientPrimitiveServer();
+    const PrimitiveClient = createPrimitiveClient(serverClient, clientFilteredList);
+    const client: ClientApiMethods<typeof clientFilteredList> = new PrimitiveClient();
+
+    return {
+        server,
+        client
+    };
 }
 
 export {
-    createServerNextArchitecture,
-    createClientNextArchitecture,
+    createCaucolum
 }

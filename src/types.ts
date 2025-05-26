@@ -13,6 +13,7 @@ export interface UseServiceCallProps {
     fn: any,
     resources?: ClientSideRequestProps,
 }
+
 export type ApiConfig = {
     [key: string]: {
         url: string;

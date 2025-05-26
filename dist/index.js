@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,15 +17,23 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  createClientNextArchitecture: () => createClientNextArchitecture,
-  createServerNextArchitecture: () => createServerNextArchitecture
+  createCaucolum: () => createCaucolum
 });
 module.exports = __toCommonJS(index_exports);
+var import_axios2 = __toESM(require("axios"));
 
 // src/useServiceCall/index.tsx
 var import_react = require("react");
@@ -114,8 +124,7 @@ function createApiClass(list, axiosConfig, axiosInstance) {
       });
     }
     async request(method, url, params) {
-      const client = http_default.client(axiosConfig, axiosInstance);
-      const response = await client[method](url, params);
+      const response = await http_default.client(axiosConfig, axiosInstance)[method](url, { params });
       return response.data;
     }
   };
@@ -149,22 +158,26 @@ function filterClientSideEndpoints(list) {
   );
   return filtered;
 }
-function createServerNextArchitecture(list, axiosConfig, axiosInstance) {
-  const filteredList = filterServerSideEndpoints(list);
-  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
+function createCaucolum({ api, axiosConfig, axiosInstance }) {
+  const UsedAxiosInstance = axiosInstance ? axiosInstance : import_axios2.default.create({
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  const serverFilteredList = filterServerSideEndpoints(api);
+  const PrimitiveServer = createApiClass(serverFilteredList, axiosConfig, UsedAxiosInstance);
   const server = new PrimitiveServer();
-  return server;
-}
-function createClientNextArchitecture(list, axiosConfig, axiosInstance) {
-  const filteredList = filterClientSideEndpoints(list);
-  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
-  const server = new PrimitiveServer();
-  const PrimitiveClient = createPrimitiveClient(server, filteredList);
+  const clientFilteredList = filterClientSideEndpoints(api);
+  const ClientPrimitiveServer = createApiClass(clientFilteredList, axiosConfig, UsedAxiosInstance);
+  const serverClient = new ClientPrimitiveServer();
+  const PrimitiveClient = createPrimitiveClient(serverClient, clientFilteredList);
   const client = new PrimitiveClient();
-  return client;
+  return {
+    server,
+    client
+  };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  createClientNextArchitecture,
-  createServerNextArchitecture
+  createCaucolum
 });

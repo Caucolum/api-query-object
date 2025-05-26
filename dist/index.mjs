@@ -1,3 +1,6 @@
+// src/index.ts
+import axios from "axios";
+
 // src/useServiceCall/index.tsx
 import { useState } from "react";
 var useServiceCall = ({ fn, resources }) => {
@@ -87,8 +90,7 @@ function createApiClass(list, axiosConfig, axiosInstance) {
       });
     }
     async request(method, url, params) {
-      const client = http_default.client(axiosConfig, axiosInstance);
-      const response = await client[method](url, params);
+      const response = await http_default.client(axiosConfig, axiosInstance)[method](url, { params });
       return response.data;
     }
   };
@@ -122,21 +124,25 @@ function filterClientSideEndpoints(list) {
   );
   return filtered;
 }
-function createServerNextArchitecture(list, axiosConfig, axiosInstance) {
-  const filteredList = filterServerSideEndpoints(list);
-  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
+function createCaucolum({ api, axiosConfig, axiosInstance }) {
+  const UsedAxiosInstance = axiosInstance ? axiosInstance : axios.create({
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  const serverFilteredList = filterServerSideEndpoints(api);
+  const PrimitiveServer = createApiClass(serverFilteredList, axiosConfig, UsedAxiosInstance);
   const server = new PrimitiveServer();
-  return server;
-}
-function createClientNextArchitecture(list, axiosConfig, axiosInstance) {
-  const filteredList = filterClientSideEndpoints(list);
-  const PrimitiveServer = createApiClass(filteredList, axiosConfig, axiosInstance);
-  const server = new PrimitiveServer();
-  const PrimitiveClient = createPrimitiveClient(server, filteredList);
+  const clientFilteredList = filterClientSideEndpoints(api);
+  const ClientPrimitiveServer = createApiClass(clientFilteredList, axiosConfig, UsedAxiosInstance);
+  const serverClient = new ClientPrimitiveServer();
+  const PrimitiveClient = createPrimitiveClient(serverClient, clientFilteredList);
   const client = new PrimitiveClient();
-  return client;
+  return {
+    server,
+    client
+  };
 }
 export {
-  createClientNextArchitecture,
-  createServerNextArchitecture
+  createCaucolum
 };

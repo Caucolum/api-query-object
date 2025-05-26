@@ -47,7 +47,9 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly method: MethodProps;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
-    readonly serverSideResources?: ServerSideProps;
+    readonly serverSideResources?: {
+        readonly disabledServerSideRequest?: boolean;
+    };
     readonly clientSideResources?: ClientSideRequestProps;
 }
 type FilteredServerApi<T> = {
@@ -68,7 +70,14 @@ type FilteredClientApi<T> = {
         disabledClientSideRequest: true;
     } ? never : K) : K]: T[K];
 };
-declare function createServerNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance): ServerApiMethods<FilteredServerApi<T>>;
-declare function createClientNextArchitecture<T extends ApiConfig>(list: T, axiosConfig: AxiosGsspProps, axiosInstance: AxiosInstance): ClientApiMethods<FilteredClientApi<T>>;
+interface ObjectFactoryParamsProps<T> {
+    api: T;
+    axiosConfig?: AxiosGsspProps;
+    axiosInstance?: AxiosInstance;
+}
+declare function createCaucolum<T extends ApiConfig>({ api, axiosConfig, axiosInstance }: ObjectFactoryParamsProps<T>): {
+    server: ServerApiMethods<FilteredServerApi<T>>;
+    client: ClientApiMethods<FilteredClientApi<T>>;
+};
 
-export { type ApiEndpoint, createClientNextArchitecture, createServerNextArchitecture };
+export { type ApiEndpoint, createCaucolum };
