@@ -4,10 +4,10 @@ Api-query-object is a JavaScript library that quickly and automatically creates 
 
 ## Features
 
-With Api-query-object, the user can list their endpoints, automatically generating:
+With `api-query-object`, the user can list their endpoints, automatically generating:
 
-- **`caucolumServer` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
-- **`caucolumClient` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
+- **`server` object**: A class object whose methods are used on the server side, such as in `getServerSideProps` and `getStaticProps`.
+- **`client` object**: A class object with the same methods as server, but with embedded business logic, for use on pages and components. These objects include:
   - `makeRequest`: A usable function to trigger the client request.
   - `data`: The response of the request.
   - `args`: Parameters of the last request.
@@ -26,58 +26,34 @@ With Api-query-object, the user can list their endpoints, automatically generati
 npm i @caucolum/api-query-object
 ```
 
-### 2. Created files
+### 2. Create files
 
-The created folder api-query-objects contains files for managing API queries.
+The library exports the `createCaucolum` method. Its parameters are:
 
-`api.ts`: This file stores a list of available API endpoints used in the project.
-`axios.ts`: This file defines the configuration used for making HTTP requests with Axios.
-`factory.ts`: This file is responsible for creating and returning objects that represent specific API query configurations.
-
-```txt
-📁 my-project
-├── 📁 src 
-    └── 📁 api-query-objects
-        └── 📄 api.ts
-        └── 📄 axios.ts
-        └── 📄 factory.ts
-```
+- **`api`**: a list of requests defined by the user.
+- **`axiosConfig?`**: an optional Axios configuration object. The `api-query-object` provides a default configuration if the user chooses not to define their own.
+- **`axiosInstance?`**: an optional custom Axios instance for making requests. A default instance is provided, but the user may supply their own if desired.
 
 ### 3. Define Endpoints
 
-In `api.ts`, user can implements him api endpoints: 
+Create a `.ts` file in your project and use createCaucolum method as follows:
 
 ```ts
-import { ApiEndpoint } from "@caucolum/api-query-object";
 
-const api = {
+const caucolum = createCaucolum({
+    api: {
+       
+    },
+});
 
-} as const satisfies Record<string, ApiEndpoint>;
-
-export default api;
+export default caucolum;
 ```
 
-The objects are automatically created when implementing the user api endpoints:
+The objects are automatically created when implementing the api endpoints.
+
+Now just include your own API in api file:
 
 ```ts
-import { createServerNextArchitecture, createClientNextArchitecture } from "@caucolum/api-query-object";
-import { axiosConfig, axiosInstance } from "./axios";
-import api from "./api";
-
-const caucolumServer = createServerNextArchitecture(api, axiosConfig, axiosInstance);
-const caucolumClient = createClientNextArchitecture(api, axiosConfig, axiosInstance);
-
-export {
-    caucolumServer,
-    caucolumClient
-}
-```
-
-Now just include your own API in `api.ts`:
-
-```ts
-import { ApiEndpoint } from "@caucolum/api-query-object";
-
 interface BreedsImageRandomArgProps {
     breed?: string;
 }
@@ -92,32 +68,35 @@ interface BreedsHoudImagesDataProps {
     status: string;
 }
 
-const api = {
-    breeds_image_random: {
-        url: '/breeds/image/random',
-        method: 'get',
-        authenticated: false,
-        ARGS_PROPS: {} as BreedsImageRandomArgProps,
-        DATA_PROPS: {} as BreedsImageRandomDataProps,
-    },
-    breed_hound_images: {
-        url: '/breed/hound/images',
-        method: 'get',
-        authenticated: false,
-        DATA_PROPS: {} as BreedsHoudImagesDataProps,
-    },
-} as const satisfies Record<string, ApiEndpoint>;
+const caucolum = createCaucolum({
+    api: {
+        breeds_image_random: {
+            url: '/breeds/image/random',
+            method: 'get',
+            authenticated: false,
+            ARGS_PROPS: {} as BreedsImageRandomArgProps,
+            DATA_PROPS: {} as BreedsImageRandomDataProps,
+        },
+        breed_hound_images: {
+            url: '/breed/hound/images',
+            method: 'get',
+            authenticated: false,
+            DATA_PROPS: {} as BreedsHoudImagesDataProps,
+        },
+    }
+});
 
-export default api;
+export default caucolum;
 ```
 
 ### 4. Server-Side Usage (`getServerSideProps`)
 
 ```ts
-import { caucolumServer } from "@/api-query-objects";
+import { caucolum } from ".";
 
 export const getServerSideProps = async () => {
-    const response = await caucolumServer.breed_hound_images();
+    const response = await caucolum.server.breed_hound_images();
+
     return {
         props: {
             listByBreed: response.message
@@ -145,10 +124,11 @@ export default Index;
 ### 5. Client-Side Usage (React Component)
 
 ```tsx
-import { caucolumClient } from "@/api-query-objects";
+import { caucolum } from ".";
 
 const Index = () => {
-    const { makeRequest, data, isSuccess } = caucolumClient.breeds_image_random();
+    const { makeRequest, data, isSuccess } = caucolum.client.breeds_image_random();
+
     return <div>
         <div>
             {isSuccess && <img src={data.message} alt="" />}
@@ -160,7 +140,7 @@ const Index = () => {
 export default Index;
 ```
 
-## Features
+### 6. Request config
 
 HTTP requests have required attributes and other customizable features.
 
@@ -180,7 +160,7 @@ Customizable features:
   - `onSuccess` function that defines the behavior after a successful request.
   - `onError` function that defines the behavior in case of an error.
 
-### 1. Server-side example: 
+#### 1. Server-side example: 
 
 ```ts
 interface UserProps {
@@ -203,7 +183,7 @@ getUser: {
  ```
 Note that the `getUser` request will be used only on the server side, so it won't be exposed in the `caucolumClient` object.
 
-### 2. Client-side example: 
+#### 2. Client-side example: 
 
 ```ts
 login: {
@@ -241,3 +221,63 @@ The login request will be handled only on the client side. Below are the specifi
   - `redirector` used to redirect to another page.
     
 Note: `data` can be used to trigger actions before redirecting to another page.
+
+## Instance and configuration
+
+As mentioned earlier, `api-query-object` provides a default configuration and request instance, but the user can customize them if needed.
+
+```ts
+const caucolum = createCaucolum({
+    api: {
+    
+    },
+    axiosConfig: (config: AxiosRequestConfig): AxiosRequestConfig => {
+    
+        return config;
+    },
+    axiosInstance: axios.create({
+      
+    })
+    
+});
+```
+
+### 1. axios config: 
+
+The user can use it to add custom configurations to the request.
+
+```ts
+const caucolum = createCaucolum({
+    api: {
+    
+    },
+    axiosConfig: (config: AxiosRequestConfig): AxiosRequestConfig => {
+        const { token } = parseCookies();
+    
+        if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    
+        return config;
+    },
+});
+```
+Here user creates a axiosConfig passing an authorization token in the headers.
+
+### 2. axios instance:
+
+The user can use this to create a custom Axios instance that will be used for the requests:
+
+```ts
+const caucolum = createCaucolum({
+    api: {
+    
+    },
+    axiosInstance: axios.create({
+        baseURL: "user/api",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+});
+```
