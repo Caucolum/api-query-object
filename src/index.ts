@@ -10,10 +10,10 @@ export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly method: MethodProps;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
+    readonly clientSideResources?: ClientSideRequestProps;
     readonly serverSideResources?: {
         readonly disabledServerSideRequest?: boolean
     };
-    readonly clientSideResources?: ClientSideRequestProps;
 }
 
 function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
@@ -27,7 +27,7 @@ function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosIns
         }
         
         async request(method: MethodProps, url: string, params?: any): Promise<any> {
-            const response = await http.client(axiosConfig, axiosInstance)[method](url, { params });
+            const response = await http.client(axiosConfig, axiosInstance)[method](url, params);
             return response.data;
         }
     };

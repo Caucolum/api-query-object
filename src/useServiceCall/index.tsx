@@ -25,6 +25,7 @@ const useServiceCall = ({ fn, resources }: UseServiceCallProps) => {
             setStatus("loaded");
             
             if (onSuccess) {
+                setData(response);
                 onSuccess({ data: response, redirector });
             } else {
                 setData(response);
