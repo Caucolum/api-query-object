@@ -1,20 +1,9 @@
-import { ApiConfig, AxiosGsspProps, ClientApiMethods, ClientSideRequestProps, MethodProps, ServerApiMethods } from "./types";
+import { ApiConfig, AxiosGsspProps, ClientApiMethods, MethodProps, ServerApiMethods } from "./types";
 import { ApiClientResourcesProps } from "./types";
 import axios, { AxiosInstance } from "axios";
 
 import useServiceCall from "./useServiceCall";
 import http from "./http";
-
-export interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
-    readonly url: string;
-    readonly method: MethodProps;
-    readonly ARGS_PROPS?: ArgsProps;
-    readonly DATA_PROPS?: DataProps;
-    readonly clientSideResources?: ClientSideRequestProps;
-    readonly serverSideResources?: {
-        readonly disabledServerSideRequest?: boolean
-    };
-}
 
 function createApiClass<T extends ApiConfig>(list: T, axiosConfig: any, axiosInstance: AxiosInstance) {
     return class Api {
