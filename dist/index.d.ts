@@ -47,10 +47,10 @@ interface ApiEndpoint<ArgsProps = unknown, DataProps = unknown> {
     readonly method: MethodProps;
     readonly ARGS_PROPS?: ArgsProps;
     readonly DATA_PROPS?: DataProps;
+    readonly clientSideResources?: ClientSideRequestProps;
     readonly serverSideResources?: {
         readonly disabledServerSideRequest?: boolean;
     };
-    readonly clientSideResources?: ClientSideRequestProps;
 }
 type FilteredServerApi<T> = {
     [K in keyof T as T[K] extends {
